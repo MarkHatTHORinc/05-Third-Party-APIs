@@ -1,19 +1,9 @@
 var today = moment();
 var dateText = today.format("dddd, MMMM Do");
-var startHour = 9;
-var endHour = 22;
+var startHour = 9;  // starting hour for agenda 
+var endHour = 17;   // ending hour for agenda
 
 var currentDay = $("#currentDay");
-
-// function to set row color
-function setRowColor(agendaRow, hour) {
-  let currentHour = moment().format('H');
-  if (hour < currentHour) {
-    agendaRow.css("background-color", "DarkCyan");
-  } else if (hour == currentHour) {
-    agendaRow.css("background-color", "DeepSkyBlue");
-  }
-}
 
 // function to Build the agenda
 function buildAgenda() {
@@ -68,7 +58,22 @@ function buildAgenda() {
   }
 
   // monitor for a click of the save image
-  $(".agenda").click(function (event) {
+  $(".agenda").click(processSave);
+
+  // monitor for a change so color of save image will change
+  $(".agenda").change(processChange);
+}
+
+  // process agenda change so color of save image will change
+  function processChange (event) {
+    event.preventDefault();
+    let hour = event.target.dataset.hour;
+    //  change the color of the save image to red
+    $(`#save-${hour}`).css("color", "red");
+  }
+
+  // process save
+  function processSave(event) {
     event.preventDefault();
     let area = event.target.dataset.area;
     // Only do this if a save was clicked on
@@ -78,19 +83,20 @@ function buildAgenda() {
       let value = $(inputId).val();
       if (value !== "" && value !== "undefined") {
         localStorage.setItem(`hour-${hour}`, value);
-        //  change the color of the save image to black
+        // change the color of the save image to black
         $(`#save-${hour}`).css("color", "black");
       }
     }
-  })
+  }
 
-  // monitor for a change so color of save image will change
-  $(".agenda").change(function (event) {
-    event.preventDefault();
-    let hour = event.target.dataset.hour;
-    //  change the color of the save image to red
-    $(`#save-${hour}`).css("color", "red");
-  })
+// function to set row color
+function setRowColor(agendaRow, hour) {
+  let currentHour = moment().format('H');
+  if (hour < currentHour) {
+    agendaRow.css("background-color", "DarkCyan");
+  } else if (hour == currentHour) {
+    agendaRow.css("background-color", "DeepSkyBlue");
+  }
 }
 
 buildAgenda();
