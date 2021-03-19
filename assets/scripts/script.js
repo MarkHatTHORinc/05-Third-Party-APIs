@@ -15,87 +15,82 @@ function setRowColor(agendaRow, hour) {
   }
 }
 
-currentDay.text(dateText);
+// function to Build the agenda
+function buildAgenda() {
+  currentDay.text(dateText);
 
-let agenda = $("#agenda");
-agenda.empty();  // remove any existing elements
-agenda.addClass("agenda");
+  let agenda = $("#agenda");
+  agenda.empty();  // remove any existing elements
+  agenda.addClass("agenda");
 
-for (let i = startHour; i <= endHour; i++) {
-  // create row for hour
-  let agendaRow = $('<div>');
-  agendaRow.addClass("row");
-  agendaRow.addClass("agendaRow");
+  for (let i = startHour; i <= endHour; i++) {
+    // create row for hour
+    let agendaRow = $('<div>');
+    agendaRow.addClass("row");
+    agendaRow.addClass("agendaRow");
 
-  // create the column that holds the time
-  let columnTime = $('<div>');
-  columnTime.addClass("col-sm-2");
-  columnTime.addClass("columnTime");
-  if (i < 13) {
-    columnTime.text(`${i}:00 am`);
-  } else {
-    columnTime.text(`${i - 12}:00 pm`);
+    // create the column that holds the time
+    let columnTime = $('<div>');
+    columnTime.addClass("col-sm-2");
+    columnTime.addClass("columnTime");
+    if (i < 13) {
+      columnTime.text(`${i}:00 am`);
+    } else {
+      columnTime.text(`${i - 12}:00 pm`);
+    }
+
+    // create the column that the user can enter the agenda data
+    let columnData = $('<input>');
+    columnData.addClass("col-sm-8");
+    columnData.addClass("columnData");
+    columnData.attr("data-area", "input");
+    columnData.attr("data-hour", `${i}`);
+    columnData.attr("id", `input-${i}`);
+    columnData.attr("type", "text");
+    const agendaData = localStorage.getItem(`hour-${i}`);
+    columnData.val(agendaData);
+
+    // create the column that allows the user to save
+    let columnSave = $('<i>');
+    columnSave.addClass("col-sm-2");
+    columnSave.addClass("far fa-save fa-2x");
+    columnSave.attr("data-area", "save");
+    columnSave.attr("data-hour", `${i}`);
+    columnSave.attr("id", `save-${i}`);
+    columnSave.attr("alt", "Save");
+    // Set the color of the row based upon hour
+    setRowColor(agendaRow, i);
+
+    agenda.append(agendaRow);
+    agendaRow.append(columnTime);
+    agendaRow.append(columnData);
+    agendaRow.append(columnSave);
   }
 
-  // create the column that the user can enter the agenda data
-  let columnData = $('<input>');
-  columnData.addClass("col-sm-8");
-  columnData.addClass("columnData");
-  columnData.attr("data-area", "input");
-  columnData.attr("data-hour", `${i}`);
-  columnData.attr("id", `input-${i}`);
-  columnData.attr("type", "text");
-  const agendaData = localStorage.getItem(`hour-${i}`);
-  columnData.val(agendaData);
+  // monitor for a click of the save image
+  $(".agenda").click(function (event) {
+    event.preventDefault();
+    let area = event.target.dataset.area;
+    // Only do this if a save was clicked on
+    if (area === "save"); {
+      let hour = event.target.dataset.hour;
+      let inputId = "#input-" + hour;
+      let value = $(inputId).val();
+      if (value !== "" && value !== "undefined") {
+        localStorage.setItem(`hour-${hour}`, value);
+        //  change the color of the save image to black
+        $(`#save-${hour}`).css("color", "black");
+      }
+    }
+  })
 
-  // create the column that allows the user to save
-  let columnSave = $('<i>');
-  columnSave.addClass("col-sm-2");
-  columnSave.addClass("far fa-save fa-2x");
-  columnSave.attr("data-area", "save");
-  columnSave.attr("data-hour", `${i}`);
-  columnSave.attr("id", `save-${i}`);
-  columnSave.attr("alt", "Save");
-
-  setRowColor(agendaRow, i);
-
-  agenda.append(agendaRow);
-  agendaRow.append(columnTime);
-  agendaRow.append(columnData);
-  agendaRow.append(columnSave);
+  // monitor for a change so color of save image will change
+  $(".agenda").change(function (event) {
+    event.preventDefault();
+    let hour = event.target.dataset.hour;
+    //  change the color of the save image to red
+    $(`#save-${hour}`).css("color", "red");
+  })
 }
 
-// $(".agenda").on("click", (event) => {
-  $(".agenda").click (function(event) {
-  event.preventDefault();
-  console.log("something was clicked");
-  // var hour = event.target.dataset.hour;
-  // var value = event.target.value;
-  let area = event.target.dataset.area;
-  // Only do this if a save was clicked on
-  if (area === "save"); {
-    let hour = event.target.dataset.hour;
-    let inputId = "input-" + hour;
-    let value = $(inputId).val();
-    console.log(`hour=${hour}\n value=${value}`);
-    if (value !== "") {
-      console.log("writing to local storage");
-      localStorage.setItem(`hour-${hour}`, value);
-      //  change the color of the save image to red
-     $(`#save-${hour}`).css("color", "black");
-    }
-  }
-})
-
-  // function to color save button on change of input
-  // $(".agenda").on("change", "input", function(event) {
-$(".agenda").change (function(event) {
-     event.preventDefault();  
-
-     let hour = event.target.dataset.hour;
-console.log("In the on change function");
-console.log(`hour: ${hour}`);
-//  change the color of the save image to red
-     $(`#save-${hour}`).css("color", "red");
-     console.log("Tried to change the color.");
-})
+buildAgenda();
